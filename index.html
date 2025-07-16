@@ -1,225 +1,117 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Malla Curricular Cosmetología - UBA</title>
-    <style>
-        body {
-            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f9f9fb;
-            color: #333;
-            margin: 0;
-            padding: 0;
-        }
-        h1 {
-            text-align: center;
-            padding: 20px;
-            color: #4a7ebB;
-        }
-        .container {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 20px;
-            padding: 20px;
-        }
-        .column {
-            background: #fff;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            width: 300px;
-            padding: 15px;
-        }
-        .column h2 {
-            text-align: center;
-            color: #4a7ebB;
-            margin-bottom: 10px;
-            font-size: 1.3em;
-        }
-        .subject {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background: #eaf1fb;
-            border: 1px solid #d3e2f1;
-            border-radius: 6px;
-            padding: 10px;
-            margin: 5px 0;
-            cursor: pointer;
-            transition: background 0.3s;
-            position: relative;
-        }
-        .subject.approved {
-            background: #c8f7c5;
-            border-color: #92e2a8;
-            text-decoration: line-through;
-        }
-        .subject.locked {
-            background: #f0f0f0;
-            border-color: #ccc;
-            color: #aaa;
-            cursor: not-allowed;
-        }
-        .subject:hover:not(.locked) {
-            background: #d9eafd;
-        }
-        .tooltip {
-            visibility: hidden;
-            background-color: #555;
-            color: #fff;
-            text-align: center;
-            border-radius: 6px;
-            padding: 5px 8px;
-            position: absolute;
-            z-index: 1;
-            bottom: 125%;
-            left: 50%;
-            transform: translateX(-50%);
-            opacity: 0;
-            transition: opacity 0.3s;
-            font-size: 0.85em;
-        }
-        .subject.locked:hover .tooltip {
-            visibility: visible;
-            opacity: 1;
-        }
-        .reset-btn {
-            display: block;
-            margin: 20px auto;
-            background: #e57373;
-            color: #fff;
-            border: none;
-            border-radius: 6px;
-            padding: 10px 20px;
-            font-size: 1em;
-            cursor: pointer;
-        }
-        .reset-btn:hover {
-            background: #ef5350;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Malla Curricular Cosmetología UBA</title>
+  <style>
+    body {
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f9f9f9;
+      color: #333;
+      margin: 0;
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+      color: #4a90e2;
+    }
+
+    .grid {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .column {
+      background-color: #fff;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 15px;
+      width: 250px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .column h2 {
+      text-align: center;
+      color: #4a90e2;
+      margin-bottom: 10px;
+    }
+
+    .subject {
+      padding: 10px;
+      margin: 5px 0;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s, color 0.3s;
+      position: relative;
+    }
+
+    .subject.approved {
+      background-color: #c8e6c9;
+      color: #2e7d32;
+      text-decoration: line-through;
+    }
+
+    .subject.locked {
+      background-color: #f0f0f0;
+      color: #999;
+      cursor: not-allowed;
+    }
+
+    .subject:hover:not(.locked):not(.approved) {
+      background-color: #e3f2fd;
+    }
+
+    .subject.locked::after {
+      content: attr(data-tooltip);
+      position: absolute;
+      top: 50%;
+      left: 105%;
+      transform: translateY(-50%);
+      background-color: #333;
+      color: #fff;
+      padding: 5px 8px;
+      border-radius: 4px;
+      white-space: nowrap;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+      font-size: 12px;
+    }
+
+    .subject.locked:hover::after {
+      opacity: 1;
+    }
+
+    button#reset {
+      display: block;
+      margin: 20px auto;
+      background-color: #e57373;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    button#reset:hover {
+      background-color: #ef5350;
+    }
+  </style>
 </head>
 <body>
-    <h1>Malla Curricular - Cosmetología (UBA)</h1>
-    <div class="container" id="malla"></div>
-    <button class="reset-btn" onclick="resetProgress()">Reiniciar Progreso</button>
-
-    <script>
-        const subjects = {
-            "CBC": [
-                { name: "Trabajo y Sociedad" },
-                { name: "Química" },
-                { name: "Física e Int. Biofísica" }
-            ],
-            "Primer Año": [
-                { name: "Historia de la cosmetología", prereq: ["Trabajo y Sociedad"] },
-                { name: "Anatomía", prereq: ["Química"] },
-                { name: "Biología, histología y genética", prereq: ["Química"] },
-                { name: "Cosmetología facial y anexos", prereq: ["Anatomía", "Biología, histología y genética"] }
-            ],
-            "Segundo Año": [
-                { name: "Inglés básico" },
-                { name: "Prácticas profesional de 2 año (A)", prereq: ["Cosmetología facial y anexos"] },
-                { name: "Dermatología básica", prereq: ["Anatomía"] },
-                { name: "Cosmetología corporal", prereq: ["Cosmetología facial y anexos"] },
-                { name: "Maquillaje básico" },
-                { name: "Psicología Gral. y aplicada" },
-                { name: "Bioestadística y epidemiología" },
-                { name: "Microbiología", prereq: ["Biología, histología y genética"] },
-                { name: "Química cosmética", prereq: ["Química"] },
-                { name: "Introducción a la nutrición" }
-            ],
-            "Tercer Año": [
-                { name: "Prácticas profesionales de 3 año (A)", prereq: ["Prácticas profesional de 2 año (A)"] },
-                { name: "Dermatología y semiología cosmética", prereq: ["Dermatología básica"] },
-                { name: "Marketing cosmetológico" },
-                { name: "Maquillaje terapéutico", prereq: ["Maquillaje básico"] },
-                { name: "Salud pública" },
-                { name: "Tecnología cosmetológica", prereq: ["Química cosmética"] },
-                { name: "Bioética y dermatología cosmética" },
-                { name: "Informática" },
-                { name: "Inglés técnico", prereq: ["Inglés básico"] }
-            ],
-            "Materias Electivas": [
-                { name: "Caracterización teatral y maquillaje artístico" },
-                { name: "Dermopigmentación" },
-                { name: "Seminario de depilación y epilación" },
-                { name: "Seminario de Manicuria estética y reparadora" }
-            ]
-        };
-
-        let approvedSubjects = JSON.parse(localStorage.getItem("approvedSubjects")) || [];
-
-        function saveProgress() {
-            localStorage.setItem("approvedSubjects", JSON.stringify(approvedSubjects));
-        }
-
-        function resetProgress() {
-            if (confirm("¿Seguro que quieres reiniciar tu progreso?")) {
-                approvedSubjects = [];
-                saveProgress();
-                renderMalla();
-            }
-        }
-
-        function isUnlocked(subject) {
-            if (!subject.prereq) return true;
-            return subject.prereq.every(req => approvedSubjects.includes(req));
-        }
-
-        function toggleApproval(subjectName) {
-            const index = approvedSubjects.indexOf(subjectName);
-            if (index >= 0) {
-                approvedSubjects.splice(index, 1);
-            } else {
-                approvedSubjects.push(subjectName);
-            }
-            saveProgress();
-            renderMalla();
-        }
-
-        function renderMalla() {
-            const container = document.getElementById("malla");
-            container.innerHTML = "";
-
-            for (const [year, yearSubjects] of Object.entries(subjects)) {
-                const column = document.createElement("div");
-                column.className = "column";
-
-                const title = document.createElement("h2");
-                title.textContent = year;
-                column.appendChild(title);
-
-                yearSubjects.forEach(subj => {
-                    const div = document.createElement("div");
-                    div.className = "subject";
-                    div.textContent = subj.name;
-
-                    if (approvedSubjects.includes(subj.name)) {
-                        div.classList.add("approved");
-                    } else if (!isUnlocked(subj)) {
-                        div.classList.add("locked");
-                        const tooltip = document.createElement("span");
-                        tooltip.className = "tooltip";
-                        tooltip.textContent = "Requiere: " + subj.prereq.join(", ");
-                        div.appendChild(tooltip);
-                    }
-
-                    div.addEventListener("click", () => {
-                        if (!div.classList.contains("locked")) {
-                            toggleApproval(subj.name);
-                        }
-                    });
-
-                    column.appendChild(div);
-                });
-
-                container.appendChild(column);
-            }
-        }
-
-        renderMalla();
-    </script>
-</body>
-</html>
+  <h1>Malla Curricular Cosmetología - UBA</h1>
+  <div class="grid">
+    <div class="column" id="cbc">
+      <h2>CBC</h2>
+      <div class="subject" data-id="Trabajo y Sociedad">Trabajo y Sociedad</div>
+      <div class="subject" data-id="Quimica">Química</div>
+      <div class="subject" data-id="Fisica e Int. Biofisica">Física e Int. Biofísica</div>
+    </div>
+    <div class="column" id="primer">
+      <h2>1° Año</h2>
+      <div class="subject" data-id="Historia de la cosmetologia" data-req='["Trabajo y Sociedad","Quimica","Fisica e Int. Biofisica"]'>Historia de la cosmeto
